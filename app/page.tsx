@@ -2,6 +2,8 @@ import { JSDOM } from "jsdom";
 
 export const dynamic = "force-dynamic";
 
+export const maxDuration = 60;
+
 export default async function Home() {
   const response = await fetch("https://news.ycombinator.com/", {
     cache: "no-store",
@@ -122,14 +124,44 @@ export default async function Home() {
         
         try {
           // Check localStorage first
-          const cachedData = localStorage.getItem(\`summary_\${storyUrl}\`);
+          const cachedItem = localStorage.getItem(\`summary_\${storyUrl}\`);
           let data;
           
-          if (cachedData) {
-            data = JSON.parse(cachedData);
-            console.log('Using cached summary');
-          } else {
-            // If not in cache, fetch from API
+          if (cachedItem) {
+            try {
+              const cached = JSON.parse(cachedItem);
+              
+              // Handle migration from old cache format
+              if (!cached.timestamp) {
+                // Old format was just the data object directly
+                const cacheData = {
+                  data: cached,
+                  timestamp: Date.now(), // Give it a fresh timestamp
+                  isError: !!cached.error
+                };
+                localStorage.setItem(\`summary_\${storyUrl}\`, JSON.stringify(cacheData));
+                data = cached;
+              } else {
+                // New format
+                const now = Date.now();
+                const ttl = cached.isError ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+                
+                if (now - cached.timestamp < ttl) {
+                  data = cached.data;
+                  console.log(\`Using cached \${cached.isError ? 'error' : 'summary'}\`);
+                } else {
+                  localStorage.removeItem(\`summary_\${storyUrl}\`);
+                }
+              }
+            } catch (e) {
+              // If there's any parsing error, remove the invalid cache
+              console.log('Removing invalid cache entry');
+              localStorage.removeItem(\`summary_\${storyUrl}\`);
+            }
+          }
+
+          if (!data) {
+            // If not in cache or expired, fetch from API
             const response = await fetch('/api/articles', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -139,10 +171,18 @@ export default async function Home() {
             data = await response.json();
             
             // Cache the result
-            if (!data?.error) {
-              localStorage.setItem(\`summary_\${storyUrl}\`, JSON.stringify(data));
-              console.log('Cached new summary');
-            }
+            const cacheData = {
+              data,
+              timestamp: Date.now(),
+              isError: !!data?.error
+            };
+            
+            localStorage.setItem(\`summary_\${storyUrl}\`, JSON.stringify(cacheData));
+            console.log(\`Cached \${data?.error ? 'error' : 'summary'}\`);
+          }
+
+          if (data?.error) {
+            throw new Error(data.error);
           }
           
           // Format tags with spaces after commas

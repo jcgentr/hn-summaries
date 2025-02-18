@@ -1,7 +1,7 @@
 - [ ] handle pagination
-- [ ] save summary object to hash map saved in local storage
-- [ ] launch on Show HN, but first save all current summaries
 
+- [x] save summary object to hash map saved in local storage
+- [x] launch on Show HN
 - [x] add analytics
 - [x] deploy to Vercel
 - [x] change favicon
