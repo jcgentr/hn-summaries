@@ -217,6 +217,36 @@ export default async function Home() {
   `;
   document.body.appendChild(script);
 
+  // Buy Me a Coffee button
+  const coffeeDiv = document.createElement("div");
+  coffeeDiv.style.cssText = `
+     position: fixed;
+     bottom: 20px;
+     left: 20px;
+     padding: 8px 12px;
+     background: #fff;
+     border: 1px solid #ffdd00;
+     border-radius: 6px;
+     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+     font-size: 12px;
+     z-index: 1000;
+   `;
+
+  coffeeDiv.innerHTML = `
+     <a href="https://buymeacoffee.com/spicy_ranch" target="_blank" rel="noopener" style="
+       color: #000000;
+       text-decoration: none;
+       display: flex;
+       align-items: center;
+       gap: 4px;
+     ">
+       <span>☕️</span>
+       <span>Buy me a coffee</span>
+     </a>
+   `;
+
+  document.body.appendChild(coffeeDiv);
+
   // Gistr sponsor
   const sponsorDiv = document.createElement("div");
   sponsorDiv.style.cssText = `
