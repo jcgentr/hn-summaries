@@ -1,8 +1,9 @@
-- [ ] save summary object to hash map saved in local storage
 - [ ] handle pagination
+- [ ] save summary object to hash map saved in local storage
+- [ ] launch on Show HN, but first save all current summaries
 
-- [ ] deploy to Vercel
-
+- [x] add analytics
+- [x] deploy to Vercel
 - [x] change favicon
 - [x] add margin around the top and bottom
 - [x] add reading time and word count to summary div

@@ -98,7 +98,7 @@ export default async function Home() {
   `;
   document.head.appendChild(style);
 
-  // Add script for handling button clicks
+  // Add script for handling button clicks (client side)
   const script = document.createElement("script");
   script.textContent = `
     document.addEventListener('click', async function(e) {
@@ -106,6 +106,7 @@ export default async function Home() {
         const button = e.target;
         const storyRow = button.closest('tr.athing');
         const titleLink = storyRow.querySelector('td.title > span.titleline > a');
+        const storyUrl = titleLink.getAttribute('href');
         
         // Check if summary already exists
         const existingSummary = storyRow.querySelector('.summary-div');
@@ -120,13 +121,29 @@ export default async function Home() {
         button.textContent = 'Summarizing...';
         
         try {
-          const response = await fetch('/api/articles', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: titleLink.getAttribute('href') })
-          });
+          // Check localStorage first
+          const cachedData = localStorage.getItem(\`summary_\${storyUrl}\`);
+          let data;
           
-          const data = await response.json();
+          if (cachedData) {
+            data = JSON.parse(cachedData);
+            console.log('Using cached summary');
+          } else {
+            // If not in cache, fetch from API
+            const response = await fetch('/api/articles', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: storyUrl })
+            });
+            
+            data = await response.json();
+            
+            // Cache the result
+            if (!data?.error) {
+              localStorage.setItem(\`summary_\${storyUrl}\`, JSON.stringify(data));
+              console.log('Cached new summary');
+            }
+          }
           
           // Format tags with spaces after commas
           const formattedTags = data.tags.split(',').map(tag => tag.trim()).join(', ');
