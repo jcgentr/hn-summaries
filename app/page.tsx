@@ -4,10 +4,18 @@ export const dynamic = "force-dynamic";
 
 export const maxDuration = 60;
 
-export default async function Home() {
-  const response = await fetch("https://news.ycombinator.com/", {
-    cache: "no-store",
-  });
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const page = Number((await searchParams).p) || 1;
+  const response = await fetch(
+    `https://news.ycombinator.com/${page > 1 ? `?p=${page}` : ""}`,
+    {
+      cache: "no-store",
+    }
+  );
   const html = await response.text();
 
   // Create a new JSDOM instance with the fetched HTML
@@ -19,7 +27,9 @@ export default async function Home() {
   links.forEach((link) => {
     const href = link.getAttribute("href");
 
-    if (href?.includes("mailto:")) return;
+    if (href?.includes("mailto:") || link.classList.contains("morelink")) {
+      return;
+    }
 
     if (href?.startsWith("/") || !href?.includes("://")) {
       link.setAttribute(
