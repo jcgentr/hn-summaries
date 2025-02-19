@@ -202,7 +202,7 @@ export default async function Home({
           
           const summaryDiv = document.createElement('div');
           summaryDiv.className = 'summary-div';
-          summaryDiv.style.cssText = 'padding: 8px; margin-top: 4px; background: #f6f6ef; border: 1px solid #ddd; border-radius: 4px;';
+          summaryDiv.style.cssText = 'padding: 8px; margin-top: 4px; margin-right: 8px; background: #f6f6ef; border: 1px solid #ddd; border-radius: 4px;';
           summaryDiv.innerHTML = \`
             <div><strong>Summary:</strong> \${data.summary}</div>
             <div><strong>Word Count:</strong> \${data.word_count?.toLocaleString() || '🤷'}</div>
